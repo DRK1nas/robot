@@ -18,8 +18,8 @@ public final class Constants {
     public static final double kDeadband = 0.08;
     public static final double kTriggerThreshold = 0.2;
 
-    // Scales stick input for driving (0..1). Lower = gentler, less sensitive.
-    public static final double kDriveScale = 1.0;
+    // Scales stick input for driving (0..1). Lower = slower and easier to control.
+    public static final double kDriveScale = 0.6;
   }
 
   public static class DriveConstants {
@@ -35,15 +35,20 @@ public final class Constants {
 
     // Scale drive output (lower for testing)
     public static final double kMaxOutput = 1.0;
+
+    // Max speed for each side, 0.0 to 1.0 (1.0 = full). Lower the side that is faster.
+    // If the robot leans LEFT, lower kRightTrim (try 0.95). If it leans RIGHT, lower kLeftTrim.
+    public static final double kLeftTrim = 1.0;
+    public static final double kRightTrim = 1.0;
   }
 
   public static class AutoConstants {
-    // Autonomous: shoot, then back up. Everything is timed (no sensors).
-    public static final double kSpinupSeconds = 1.5; // shooter alone, to get up to speed
-    public static final double kFeedSeconds = 2.0; // then kickers feed while shooter keeps running
+    // Autonomous: shoot, then back up. Everything is timed (no encoders).
+    public static final double kSpinupSeconds = 1.5; // shooter runs alone this long first
+    public static final double kFeedSeconds = 2.0; // then kickers feed for this long
 
-    // Negative = backward (same as pulling the stick back). Make positive if backing up
-    // drives toward the goal instead. The drive squares inputs, so -0.6 is about 36% power.
+    // Negative = backward (same as pulling the sticks back). Flip the sign if the robot
+    // drives toward the goal instead. The drive squares this value, so 0.6 is about 36% power.
     public static final double kBackUpSpeed = -0.6;
     public static final double kBackUpSeconds = 1.0;
   }
@@ -55,13 +60,13 @@ public final class Constants {
     public static final int kUpperKickerId = 6;
 
     // Percent output, 0..1
-    public static final double kShooterSpeed = 0.60;
-    public static final double kKickerSpeed = 0.70;
+    public static final double kShooterSpeed = 0.65;
+    public static final double kKickerSpeed = 0.60;
     public static final double kUnjamShooterSpeed = -0.40;
     public static final double kUnjamKickerSpeed = -0.60;
 
     // Upper kicker (CAN 6) has its own speeds so you can tune it separately
-    public static final double kUpperKickerSpeed = 0.75;
+    public static final double kUpperKickerSpeed = 0.80;
     public static final double kUnjamUpperKickerSpeed = -0.60;
 
     // Flip these if a motor spins the wrong way

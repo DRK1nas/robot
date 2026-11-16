@@ -14,27 +14,32 @@ import frc.robot.subsystems.UpperKickerSubsystem;
 
 public final class Autos {
   /**
-   * Spins up the shooter, feeds with both kickers while the shooter keeps running, then backs up.
+   * Shoots, then backs up a little.
+   *
+   * <p>1. Shooter spins up alone. 2. Kickers join in and feed. 3. Everything stops. 4. Robot
+   * drives backward for a fixed time.
    */
-  public static Command shootThenBackUp(
+  public static Command shootAndBackUp(
       DriveSubsystem drive,
       ShooterSubsystem shooter,
       KickerSubsystem kicker,
       UpperKickerSubsystem upperKicker) {
+    // The shooter runs the whole time; the kickers start after the spin-up delay.
+    // The timeout ends the group, which stops all three motors.
     Command shoot =
-        Commands.deadline(
-            Commands.waitSeconds(AutoConstants.kSpinupSeconds)
-                .andThen(
-                    Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())
-                        .withTimeout(AutoConstants.kFeedSeconds)),
-            shooter.shootCommand());
+        Commands.parallel(
+                shooter.shootCommand(),
+                Commands.sequence(
+                    Commands.waitSeconds(AutoConstants.kSpinupSeconds),
+                    Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())))
+            .withTimeout(AutoConstants.kSpinupSeconds + AutoConstants.kFeedSeconds);
 
     Command backUp =
         drive
-            .arcadeDriveCommand(() -> AutoConstants.kBackUpSpeed, () -> 0.0)
+            .tankDriveCommand(() -> AutoConstants.kBackUpSpeed, () -> AutoConstants.kBackUpSpeed)
             .withTimeout(AutoConstants.kBackUpSeconds);
 
-    return shoot.andThen(backUp);
+    return Commands.sequence(shoot, backUp);
   }
 
   private Autos() {

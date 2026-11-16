@@ -24,11 +24,12 @@ import frc.robot.subsystems.UpperKickerSubsystem;
  * <p>Controls (Xbox, port 0):
  *
  * <ul>
- *   <li>Left stick Y = drive forward/back, right stick X = turn
- *   <li>Right trigger (hold) = shooter wheel
- *   <li>Right bumper (hold) = kicker (lower)
- *   <li>Left bumper (hold) = upper kicker
- *   <li>B button (hold) = run shooter and both kickers backwards to clear a jam
+ *   <li>Left stick Y = drive forward/back, right stick X = turn (arcade drive)
+ *   <li>Right trigger (press to toggle on/off) = shooter wheel (CAN 7)
+ *   <li>Right bumper (hold) = kicker wheel (CAN 5)
+ *   <li>Left bumper (hold) = upper kicker wheel (CAN 6)
+ *   <li>A button (hold) = shooter, kicker and upper kicker together
+ *   <li>B button (hold) = reverse shooter, kicker and upper kicker to clear a jam
  * </ul>
  */
 public class RobotContainer {
@@ -59,12 +60,23 @@ public class RobotContainer {
                 -MathUtil.applyDeadband(m_driverController.getRightX(), OperatorConstants.kDeadband)
                     * OperatorConstants.kDriveScale));
 
-    // Each shooter motor has its own button, so they can be held together.
+    // Right trigger toggles the shooter wheel on and off.
     m_driverController
         .rightTrigger(OperatorConstants.kTriggerThreshold)
-        .whileTrue(m_shooter.shootCommand());
+        .toggleOnTrue(m_shooter.shootCommand());
+
+    // Right bumper runs the kicker wheel (CAN 5) on its own.
     m_driverController.rightBumper().whileTrue(m_kicker.kickCommand());
+
+    // Left bumper runs the upper kicker wheel (CAN 6) on its own.
     m_driverController.leftBumper().whileTrue(m_upperKicker.kickCommand());
+
+    // A button runs the shooter, kicker and upper kicker together.
+    m_driverController
+        .a()
+        .whileTrue(
+            Commands.parallel(
+                m_shooter.shootCommand(), m_kicker.kickCommand(), m_upperKicker.kickCommand()));
 
     // B button reverses everything to clear a jam.
     m_driverController
@@ -82,6 +94,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Autos.shootThenBackUp(m_drive, m_shooter, m_kicker, m_upperKicker);
+    return Autos.shootAndBackUp(m_drive, m_shooter, m_kicker, m_upperKicker);
   }
 }
