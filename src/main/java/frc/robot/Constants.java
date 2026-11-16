@@ -50,23 +50,23 @@ public final class Constants {
 
   public static class ShooterConstants {
     // CAN IDs (Talon SRX)
-    public static final int kLowerKickerId = 5;
+    public static final int kKickerId = 5;
     public static final int kShooterId = 7;
     public static final int kUpperKickerId = 6;
 
-    // Percent output when running, 0..1
+    // Percent output, 0..1
     public static final double kShooterSpeed = 0.60;
-    public static final double kLowerKickerSpeed = 0.70;
-    public static final double kUpperKickerSpeed = 0.75;
-
-    // Percent output when unjamming (B button)
+    public static final double kKickerSpeed = 0.70;
     public static final double kUnjamShooterSpeed = -0.40;
-    public static final double kUnjamLowerKickerSpeed = -0.60;
+    public static final double kUnjamKickerSpeed = -0.60;
+
+    // Upper kicker (CAN 6) has its own speeds so you can tune it separately
+    public static final double kUpperKickerSpeed = 0.75;
     public static final double kUnjamUpperKickerSpeed = -0.60;
 
     // Flip these if a motor spins the wrong way
     public static final boolean kShooterInverted = false;
-    public static final boolean kLowerKickerInverted = true;
+    public static final boolean kKickerInverted = true;
     public static final boolean kUpperKickerInverted = false;
   }
 }

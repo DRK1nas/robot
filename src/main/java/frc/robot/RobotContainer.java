@@ -9,10 +9,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.KickerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.UpperKickerSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -25,7 +26,7 @@ import frc.robot.subsystems.ShooterSubsystem;
  * <ul>
  *   <li>Left stick Y = drive forward/back, right stick X = turn
  *   <li>Right trigger (hold) = shooter wheel
- *   <li>Right bumper (hold) = lower kicker
+ *   <li>Right bumper (hold) = kicker (lower)
  *   <li>Left bumper (hold) = upper kicker
  *   <li>B button (hold) = run shooter and both kickers backwards to clear a jam
  * </ul>
@@ -33,24 +34,9 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_drive = new DriveSubsystem();
-  private final ShooterSubsystem m_shooter =
-      new ShooterSubsystem(
-          ShooterConstants.kShooterId,
-          ShooterConstants.kShooterInverted,
-          ShooterConstants.kShooterSpeed,
-          ShooterConstants.kUnjamShooterSpeed);
-  private final ShooterSubsystem m_lowerKicker =
-      new ShooterSubsystem(
-          ShooterConstants.kLowerKickerId,
-          ShooterConstants.kLowerKickerInverted,
-          ShooterConstants.kLowerKickerSpeed,
-          ShooterConstants.kUnjamLowerKickerSpeed);
-  private final ShooterSubsystem m_upperKicker =
-      new ShooterSubsystem(
-          ShooterConstants.kUpperKickerId,
-          ShooterConstants.kUpperKickerInverted,
-          ShooterConstants.kUpperKickerSpeed,
-          ShooterConstants.kUnjamUpperKickerSpeed);
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  private final KickerSubsystem m_kicker = new KickerSubsystem();
+  private final UpperKickerSubsystem m_upperKicker = new UpperKickerSubsystem();
 
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -76,9 +62,9 @@ public class RobotContainer {
     // Each shooter motor has its own button, so they can be held together.
     m_driverController
         .rightTrigger(OperatorConstants.kTriggerThreshold)
-        .whileTrue(m_shooter.runCommand());
-    m_driverController.rightBumper().whileTrue(m_lowerKicker.runCommand());
-    m_driverController.leftBumper().whileTrue(m_upperKicker.runCommand());
+        .whileTrue(m_shooter.shootCommand());
+    m_driverController.rightBumper().whileTrue(m_kicker.kickCommand());
+    m_driverController.leftBumper().whileTrue(m_upperKicker.kickCommand());
 
     // B button reverses everything to clear a jam.
     m_driverController
@@ -86,7 +72,7 @@ public class RobotContainer {
         .whileTrue(
             Commands.parallel(
                 m_shooter.unjamCommand(),
-                m_lowerKicker.unjamCommand(),
+                m_kicker.unjamCommand(),
                 m_upperKicker.unjamCommand()));
   }
 
@@ -96,6 +82,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Autos.shootThenBackUp(m_drive, m_shooter, m_lowerKicker, m_upperKicker);
+    return Autos.shootThenBackUp(m_drive, m_shooter, m_kicker, m_upperKicker);
   }
 }

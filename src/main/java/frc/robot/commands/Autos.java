@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.KickerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.UpperKickerSubsystem;
 
 public final class Autos {
   /**
@@ -17,15 +19,15 @@ public final class Autos {
   public static Command shootThenBackUp(
       DriveSubsystem drive,
       ShooterSubsystem shooter,
-      ShooterSubsystem lowerKicker,
-      ShooterSubsystem upperKicker) {
+      KickerSubsystem kicker,
+      UpperKickerSubsystem upperKicker) {
     Command shoot =
         Commands.deadline(
             Commands.waitSeconds(AutoConstants.kSpinupSeconds)
                 .andThen(
-                    Commands.parallel(lowerKicker.runCommand(), upperKicker.runCommand())
+                    Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())
                         .withTimeout(AutoConstants.kFeedSeconds)),
-            shooter.runCommand());
+            shooter.shootCommand());
 
     Command backUp =
         drive
