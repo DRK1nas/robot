@@ -17,6 +17,9 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final double kDeadband = 0.08;
     public static final double kTriggerThreshold = 0.2;
+
+    // Scales stick input for driving (0..1). Lower = gentler, less sensitive.
+    public static final double kDriveScale = 1.0;
   }
 
   public static class DriveConstants {
@@ -32,25 +35,38 @@ public final class Constants {
 
     // Scale drive output (lower for testing)
     public static final double kMaxOutput = 1.0;
+  }
 
-    // Autonomous: simple drive-forward
-    public static final double kAutoDriveSpeed = 0.5;
-    public static final double kAutoDriveSeconds = 2.0;
+  public static class AutoConstants {
+    // Autonomous: shoot, then back up. Everything is timed (no sensors).
+    public static final double kSpinupSeconds = 1.5; // shooter alone, to get up to speed
+    public static final double kFeedSeconds = 2.0; // then kickers feed while shooter keeps running
+
+    // Negative = backward (same as pulling the stick back). Make positive if backing up
+    // drives toward the goal instead. The drive squares inputs, so -0.6 is about 36% power.
+    public static final double kBackUpSpeed = -0.6;
+    public static final double kBackUpSeconds = 1.0;
   }
 
   public static class ShooterConstants {
     // CAN IDs (Talon SRX)
-    public static final int kKickerId = 5;
+    public static final int kLowerKickerId = 5;
     public static final int kShooterId = 6;
+    public static final int kUpperKickerId = 7;
 
-    // Percent output, 0..1
-    public static final double kShooterSpeed = 0.85;
-    public static final double kKickerSpeed = 0.60;
+    // Percent output when running, 0..1
+    public static final double kShooterSpeed = 0.60;
+    public static final double kLowerKickerSpeed = 0.70;
+    public static final double kUpperKickerSpeed = 0.75;
+
+    // Percent output when unjamming (B button)
     public static final double kUnjamShooterSpeed = -0.40;
-    public static final double kUnjamKickerSpeed = -0.60;
+    public static final double kUnjamLowerKickerSpeed = -0.60;
+    public static final double kUnjamUpperKickerSpeed = -0.60;
 
     // Flip these if a motor spins the wrong way
     public static final boolean kShooterInverted = false;
-    public static final boolean kKickerInverted = true;
+    public static final boolean kLowerKickerInverted = true;
+    public static final boolean kUpperKickerInverted = false;
   }
 }

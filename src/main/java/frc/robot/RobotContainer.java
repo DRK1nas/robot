@@ -6,8 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -22,14 +24,33 @@ import frc.robot.subsystems.ShooterSubsystem;
  *
  * <ul>
  *   <li>Left stick Y = drive forward/back, right stick X = turn
- *   <li>Right trigger (hold) = run shooter and kicker together
- *   <li>B button (hold) = reverse shooter and kicker to clear a jam
+ *   <li>Right trigger (hold) = shooter wheel
+ *   <li>Right bumper (hold) = lower kicker
+ *   <li>Left bumper (hold) = upper kicker
+ *   <li>B button (hold) = run shooter and both kickers backwards to clear a jam
  * </ul>
  */
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_drive = new DriveSubsystem();
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  private final ShooterSubsystem m_shooter =
+      new ShooterSubsystem(
+          ShooterConstants.kShooterId,
+          ShooterConstants.kShooterInverted,
+          ShooterConstants.kShooterSpeed,
+          ShooterConstants.kUnjamShooterSpeed);
+  private final ShooterSubsystem m_lowerKicker =
+      new ShooterSubsystem(
+          ShooterConstants.kLowerKickerId,
+          ShooterConstants.kLowerKickerInverted,
+          ShooterConstants.kLowerKickerSpeed,
+          ShooterConstants.kUnjamLowerKickerSpeed);
+  private final ShooterSubsystem m_upperKicker =
+      new ShooterSubsystem(
+          ShooterConstants.kUpperKickerId,
+          ShooterConstants.kUpperKickerInverted,
+          ShooterConstants.kUpperKickerSpeed,
+          ShooterConstants.kUnjamUpperKickerSpeed);
 
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -45,16 +66,28 @@ public class RobotContainer {
     // counterclockwise, so negate it so pushing right turns right.
     m_drive.setDefaultCommand(
         m_drive.arcadeDriveCommand(
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), OperatorConstants.kDeadband),
-            () -> -MathUtil.applyDeadband(m_driverController.getRightX(), OperatorConstants.kDeadband)));
+            () ->
+                -MathUtil.applyDeadband(m_driverController.getLeftY(), OperatorConstants.kDeadband)
+                    * OperatorConstants.kDriveScale,
+            () ->
+                -MathUtil.applyDeadband(m_driverController.getRightX(), OperatorConstants.kDeadband)
+                    * OperatorConstants.kDriveScale));
 
-    // Right trigger runs the shooter and the kicker together.
+    // Each shooter motor has its own button, so they can be held together.
     m_driverController
         .rightTrigger(OperatorConstants.kTriggerThreshold)
-        .whileTrue(m_shooter.shootCommand());
+        .whileTrue(m_shooter.runCommand());
+    m_driverController.rightBumper().whileTrue(m_lowerKicker.runCommand());
+    m_driverController.leftBumper().whileTrue(m_upperKicker.runCommand());
 
     // B button reverses everything to clear a jam.
-    m_driverController.b().whileTrue(m_shooter.unjamCommand());
+    m_driverController
+        .b()
+        .whileTrue(
+            Commands.parallel(
+                m_shooter.unjamCommand(),
+                m_lowerKicker.unjamCommand(),
+                m_upperKicker.unjamCommand()));
   }
 
   /**
@@ -63,6 +96,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Autos.driveForward(m_drive);
+    return Autos.shootThenBackUp(m_drive, m_shooter, m_lowerKicker, m_upperKicker);
   }
 }
