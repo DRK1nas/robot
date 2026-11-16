@@ -12,7 +12,7 @@ public final class Autos {
   /** Drives straight forward for a fixed time, then stops. */
   public static Command driveForward(DriveSubsystem drive) {
     return drive
-        .tankDriveCommand(() -> DriveConstants.kAutoDriveSpeed, () -> DriveConstants.kAutoDriveSpeed)
+        .arcadeDriveCommand(() -> DriveConstants.kAutoDriveSpeed, () -> 0.0)
         .withTimeout(DriveConstants.kAutoDriveSeconds);
   }
 

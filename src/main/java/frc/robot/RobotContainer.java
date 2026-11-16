@@ -21,7 +21,7 @@ import frc.robot.subsystems.ShooterSubsystem;
  * <p>Controls (Xbox, port 0):
  *
  * <ul>
- *   <li>Left stick Y = left side of drive, right stick Y = right side of drive
+ *   <li>Left stick Y = drive forward/back, right stick X = turn
  *   <li>Right trigger (hold) = run shooter and kicker together
  *   <li>B button (hold) = reverse shooter and kicker to clear a jam
  * </ul>
@@ -40,12 +40,13 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    // Tank drive is the default command. Xbox Y axes are negative when pushed forward.
+    // Arcade drive is the default command. Xbox Y axes are negative when pushed forward;
+    // X axes are positive when pushed right, but arcadeDrive treats positive rotation as
+    // counterclockwise, so negate it so pushing right turns right.
     m_drive.setDefaultCommand(
-        m_drive.tankDriveCommand(
+        m_drive.arcadeDriveCommand(
             () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), OperatorConstants.kDeadband),
-            () ->
-                -MathUtil.applyDeadband(m_driverController.getRightY(), OperatorConstants.kDeadband)));
+            () -> -MathUtil.applyDeadband(m_driverController.getRightX(), OperatorConstants.kDeadband)));
 
     // Right trigger runs the shooter and the kicker together.
     m_driverController

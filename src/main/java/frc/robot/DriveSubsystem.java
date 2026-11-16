@@ -14,7 +14,7 @@ import frc.robot.Constants.DriveConstants;
 
 import java.util.function.DoubleSupplier;
 
-/** Tank drive: CAN 1,2 = right side, CAN 3,4 = left side. */
+/** Arcade drive: CAN 1,2 = right side, CAN 3,4 = left side. */
 public class DriveSubsystem extends SubsystemBase {
   private final WPI_TalonSRX m_rightLeader = new WPI_TalonSRX(DriveConstants.kRightLeaderId);
   private final WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(DriveConstants.kRightFollowerId);
@@ -46,9 +46,12 @@ public class DriveSubsystem extends SubsystemBase {
     m_drive.setMaxOutput(DriveConstants.kMaxOutput);
   }
 
-  /** Tank drive command: left and right are -1..1 (forward positive). Runs until interrupted. */
-  public Command tankDriveCommand(DoubleSupplier left, DoubleSupplier right) {
-    return run(() -> m_drive.tankDrive(left.getAsDouble(), right.getAsDouble(), true))
+  /**
+   * Arcade drive command: forward is -1..1 (forward positive), rotation is -1..1
+   * (counterclockwise positive). Runs until interrupted.
+   */
+  public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier rotation) {
+    return run(() -> m_drive.arcadeDrive(forward.getAsDouble(), rotation.getAsDouble(), true))
         .finallyDo(interrupted -> m_drive.stopMotor());
   }
 
