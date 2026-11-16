@@ -51,8 +51,8 @@ public final class Constants {
   public static class ShooterConstants {
     // CAN IDs (Talon SRX)
     public static final int kLowerKickerId = 5;
-    public static final int kShooterId = 6;
-    public static final int kUpperKickerId = 7;
+    public static final int kShooterId = 7;
+    public static final int kUpperKickerId = 6;
 
     // Percent output when running, 0..1
     public static final double kShooterSpeed = 0.60;
