@@ -53,7 +53,9 @@ public class RobotContainer {
 
     m_autoChooser.setDefaultOption(
         "Shoot and Back Up", Autos.shootAndBackUp(m_drive, m_shooter, m_kicker, m_upperKicker));
-    m_autoChooser.addOption("Forward and Back", Autos.forwardAndBack(m_drive));
+    m_autoChooser.addOption(
+        "Shoot and Go Forward",
+        Autos.shootAndGoForward(m_drive, m_shooter, m_kicker, m_upperKicker));
     m_autoChooser.addOption("Do Nothing", Commands.none());
     SmartDashboard.putData("Auto Chooser", m_autoChooser);
   }

@@ -52,11 +52,10 @@ public final class Constants {
     public static final double kBackUpSpeed = -0.6;
     public static final double kBackUpSeconds = 1.0;
 
-    // "Forward and Back" auto: drive forward, then backward the same way.
+    // "Shoot and Go Forward" auto: after shooting, drive forward.
     // The drive squares this value, so 0.6 is about 36% power.
-    public static final double kForwardBackSpeed = 0.6;
+    public static final double kForwardSpeed = 0.6;
     public static final double kForwardSeconds = 1.0;
-    public static final double kBackwardSeconds = 1.0;
   }
 
   public static class ShooterConstants {

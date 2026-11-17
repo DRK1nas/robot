@@ -42,19 +42,31 @@ public final class Autos {
     return Commands.sequence(shoot, backUp);
   }
 
-  /** Drives forward for a fixed time, then backward for a fixed time. No shooting. */
-  public static Command forwardAndBack(DriveSubsystem drive) {
-    Command forward =
+  /**
+   * Shoots, then drives forward.
+   *
+   * <p>1. Shooter spins up alone. 2. Kickers join in and feed. 3. Everything stops. 4. Robot
+   * drives forward for a fixed time.
+   */
+  public static Command shootAndGoForward(
+      DriveSubsystem drive,
+      ShooterSubsystem shooter,
+      KickerSubsystem kicker,
+      UpperKickerSubsystem upperKicker) {
+    Command shoot =
+        Commands.parallel(
+                shooter.shootCommand(),
+                Commands.sequence(
+                    Commands.waitSeconds(AutoConstants.kSpinupSeconds),
+                    Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())))
+            .withTimeout(AutoConstants.kSpinupSeconds + AutoConstants.kFeedSeconds);
+
+    Command goForward =
         drive
-            .arcadeDriveCommand(() -> AutoConstants.kForwardBackSpeed, () -> 0.0)
+            .arcadeDriveCommand(() -> AutoConstants.kForwardSpeed, () -> 0.0)
             .withTimeout(AutoConstants.kForwardSeconds);
 
-    Command backward =
-        drive
-            .arcadeDriveCommand(() -> -AutoConstants.kForwardBackSpeed, () -> 0.0)
-            .withTimeout(AutoConstants.kBackwardSeconds);
-
-    return Commands.sequence(forward, backward);
+    return Commands.sequence(shoot, goForward);
   }
 
   private Autos() {
