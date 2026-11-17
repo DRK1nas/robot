@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
@@ -34,6 +35,12 @@ public class ShooterSubsystem extends SubsystemBase {
     return startEnd(
         () -> m_shooter.set(ControlMode.PercentOutput, ShooterConstants.kUnjamShooterSpeed),
         this::stop);
+  }
+
+  /** Shows "Shooter Spinning" on the dashboard (Elastic): true while the shooter motor runs. */
+  @Override
+  public void periodic() {
+    SmartDashboard.putBoolean("Shooter Spinning", Math.abs(m_shooter.getMotorOutputPercent()) > 0.05);
   }
 
   public void stop() {
