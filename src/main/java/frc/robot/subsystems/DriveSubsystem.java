@@ -8,7 +8,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -52,31 +51,14 @@ public class DriveSubsystem extends SubsystemBase {
    * (counterclockwise positive). Inputs are squared for finer control. Runs until interrupted.
    */
   public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier rotation) {
-    return run(() -> {
-          WheelSpeeds speeds =
-              DifferentialDrive.arcadeDriveIK(forward.getAsDouble(), rotation.getAsDouble(), true);
-          driveTrimmed(speeds);
-        })
+    return run(() -> m_drive.arcadeDrive(forward.getAsDouble(), rotation.getAsDouble(), true))
         .finallyDo(interrupted -> m_drive.stopMotor());
   }
 
-  /**
-   * Tank drive command: left and right are -1..1 (forward positive). Inputs are squared. Runs
-   * until interrupted.
-   */
+  /** Tank drive command: left and right are -1..1 (forward positive). Runs until interrupted. */
   public Command tankDriveCommand(DoubleSupplier left, DoubleSupplier right) {
-    return run(() -> {
-          WheelSpeeds speeds =
-              DifferentialDrive.tankDriveIK(left.getAsDouble(), right.getAsDouble(), true);
-          driveTrimmed(speeds);
-        })
+    return run(() -> m_drive.tankDrive(left.getAsDouble(), right.getAsDouble(), true))
         .finallyDo(interrupted -> m_drive.stopMotor());
-  }
-
-  /** Applies kLeftTrim / kRightTrim so a robot that pulls to one side drives straight. */
-  private void driveTrimmed(WheelSpeeds speeds) {
-    m_drive.tankDrive(
-        speeds.left * DriveConstants.kLeftTrim, speeds.right * DriveConstants.kRightTrim, false);
   }
 
   public void stop() {
