@@ -25,9 +25,9 @@ import frc.robot.subsystems.UpperKickerSubsystem;
  *
  * <ul>
  *   <li>Left stick Y = drive forward/back, right stick X = turn (arcade drive)
- *   <li>Right trigger (press to toggle on/off) = shooter wheel (CAN 7)
+ *   <li>Right trigger (press to toggle on/off) = shooter wheel (CAN 6)
  *   <li>Right bumper (hold) = kicker wheel (CAN 5)
- *   <li>Left bumper (hold) = upper kicker wheel (CAN 6)
+ *   <li>Left bumper (hold) = upper kicker wheel (CAN 7)
  *   <li>A button (hold) = shooter, kicker and upper kicker together
  *   <li>B button (hold) = reverse shooter, kicker and upper kicker to clear a jam
  * </ul>
@@ -68,7 +68,7 @@ public class RobotContainer {
     // Right bumper runs the kicker wheel (CAN 5) on its own.
     m_driverController.rightBumper().whileTrue(m_kicker.kickCommand());
 
-    // Left bumper runs the upper kicker wheel (CAN 6) on its own.
+    // Left bumper runs the upper kicker wheel (CAN 7) on its own.
     m_driverController.leftBumper().whileTrue(m_upperKicker.kickCommand());
 
     // A button runs the shooter, kicker and upper kicker together.

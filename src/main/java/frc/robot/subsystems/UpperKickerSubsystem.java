@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 
-/** Upper kicker wheel: CAN 6. Separate from the kicker so each can run on its own. */
+/** Upper kicker wheel: CAN 7. Separate from the kicker so each can run on its own. */
 public class UpperKickerSubsystem extends SubsystemBase {
   private final WPI_TalonSRX m_upperKicker = new WPI_TalonSRX(ShooterConstants.kUpperKickerId);
 

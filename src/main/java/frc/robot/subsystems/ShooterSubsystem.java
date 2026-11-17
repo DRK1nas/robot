@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 
-/** Shooter wheel: CAN 7. */
+/** Shooter wheel: CAN 6. */
 public class ShooterSubsystem extends SubsystemBase {
   private final WPI_TalonSRX m_shooter = new WPI_TalonSRX(ShooterConstants.kShooterId);
 

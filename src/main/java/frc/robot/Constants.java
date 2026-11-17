@@ -56,8 +56,8 @@ public final class Constants {
   public static class ShooterConstants {
     // CAN IDs (Talon SRX)
     public static final int kKickerId = 5;
-    public static final int kShooterId = 7;
-    public static final int kUpperKickerId = 6;
+    public static final int kShooterId = 6;
+    public static final int kUpperKickerId = 7;
 
     // Percent output, 0..1
     public static final double kShooterSpeed = 0.65;
@@ -65,7 +65,7 @@ public final class Constants {
     public static final double kUnjamShooterSpeed = -0.40;
     public static final double kUnjamKickerSpeed = -0.60;
 
-    // Upper kicker (CAN 6) has its own speeds so you can tune it separately
+    // Upper kicker (CAN 7) has its own speeds so you can tune it separately
     public static final double kUpperKickerSpeed = 0.80;
     public static final double kUnjamUpperKickerSpeed = -0.60;
 
