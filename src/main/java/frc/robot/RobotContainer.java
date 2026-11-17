@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,9 +44,18 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
+  // Pick the autonomous routine from the dashboard (Elastic: "Auto Chooser").
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureBindings();
+
+    m_autoChooser.setDefaultOption(
+        "Shoot and Back Up", Autos.shootAndBackUp(m_drive, m_shooter, m_kicker, m_upperKicker));
+    m_autoChooser.addOption("Forward and Back", Autos.forwardAndBack(m_drive));
+    m_autoChooser.addOption("Do Nothing", Commands.none());
+    SmartDashboard.putData("Auto Chooser", m_autoChooser);
   }
 
   private void configureBindings() {
@@ -94,6 +105,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Autos.shootAndBackUp(m_drive, m_shooter, m_kicker, m_upperKicker);
+    return m_autoChooser.getSelected();
   }
 }

@@ -42,6 +42,21 @@ public final class Autos {
     return Commands.sequence(shoot, backUp);
   }
 
+  /** Drives forward for a fixed time, then backward for a fixed time. No shooting. */
+  public static Command forwardAndBack(DriveSubsystem drive) {
+    Command forward =
+        drive
+            .arcadeDriveCommand(() -> AutoConstants.kForwardBackSpeed, () -> 0.0)
+            .withTimeout(AutoConstants.kForwardSeconds);
+
+    Command backward =
+        drive
+            .arcadeDriveCommand(() -> -AutoConstants.kForwardBackSpeed, () -> 0.0)
+            .withTimeout(AutoConstants.kBackwardSeconds);
+
+    return Commands.sequence(forward, backward);
+  }
+
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
