@@ -51,8 +51,23 @@ public class DriveSubsystem extends SubsystemBase {
    * (counterclockwise positive). Inputs are squared for finer control. Runs until interrupted.
    */
   public Command arcadeDriveCommand(DoubleSupplier forward, DoubleSupplier rotation) {
-    return run(() -> m_drive.arcadeDrive(forward.getAsDouble(), rotation.getAsDouble(), true))
+    return run(() -> {
+          // Square here (same as squareInputs) so the drift correction below is not squared away.
+          double fwd = square(forward.getAsDouble());
+          double rot = square(rotation.getAsDouble());
+
+          // Drifts left -> add a right (clockwise = negative) turn while driving forward.
+          // Driving backward flips the sign, which is what a faster side needs then too.
+          rot -= fwd * DriveConstants.kDriftCorrection;
+
+          m_drive.arcadeDrive(fwd, rot, false);
+        })
         .finallyDo(interrupted -> m_drive.stopMotor());
+  }
+
+  /** Squares a -1..1 value while keeping its sign. */
+  private static double square(double value) {
+    return Math.copySign(value * value, value);
   }
 
   /** Tank drive command: left and right are -1..1 (forward positive). Runs until interrupted. */

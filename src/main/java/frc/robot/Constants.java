@@ -36,10 +36,10 @@ public final class Constants {
     // Scale drive output (lower for testing)
     public static final double kMaxOutput = 1.0;
 
-    // Max speed for each side, 0.0 to 1.0 (1.0 = full). Lower the side that is faster.
-    // If the robot leans LEFT, lower kRightTrim (try 0.95). If it leans RIGHT, lower kLeftTrim.
-    public static final double kLeftTrim = 1.0;
-    public static final double kRightTrim = 1.0;
+    // Straight-driving correction. Adds a little turn whenever the robot drives, in proportion
+    // to how fast it drives. Positive = turn RIGHT (fixes a robot that drifts LEFT).
+    // Negative = turn LEFT (fixes drifting RIGHT). 0 = off. Change in small steps (0.02).
+    public static final double kDriftCorrection = 0.05;
   }
 
   public static class AutoConstants {

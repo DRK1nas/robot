@@ -26,7 +26,7 @@ public final class Autos {
       UpperKickerSubsystem upperKicker) {
     Command backUp =
         drive
-            .tankDriveCommand(() -> AutoConstants.kBackUpSpeed, () -> AutoConstants.kBackUpSpeed)
+            .arcadeDriveCommand(() -> AutoConstants.kBackUpSpeed, () -> 0.0)
             .withTimeout(AutoConstants.kBackUpSeconds);
 
     return Commands.sequence(shoot(shooter, kicker, upperKicker), backUp);
