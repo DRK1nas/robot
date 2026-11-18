@@ -30,6 +30,11 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> m_shooter.set(ControlMode.PercentOutput, ShooterConstants.kShooterSpeed), this::stop);
   }
 
+  /** Runs the shooter wheel at the given speed (0..1). Stops it when the command ends. */
+  public Command shootCommand(double speed) {
+    return startEnd(() -> m_shooter.set(ControlMode.PercentOutput, speed), this::stop);
+  }
+
   /** Runs the shooter wheel backwards to clear a jam. Stops it when the command ends. */
   public Command unjamCommand() {
     return startEnd(

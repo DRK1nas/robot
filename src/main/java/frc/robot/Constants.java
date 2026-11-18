@@ -43,9 +43,16 @@ public final class Constants {
   }
 
   public static class AutoConstants {
-    // Autonomous: shoot, then back up. Everything is timed (no encoders).
-    public static final double kSpinupSeconds = 1.5; // shooter runs alone this long first
-    public static final double kFeedSeconds = 2.0; // then kickers feed for this long
+    // Autonomous: shoot, then drive. Everything is timed (no encoders).
+    // Shooter speed in auto (teleop uses ShooterConstants.kShooterSpeed). Raise if shots are low.
+    public static final double kAutoShooterSpeed = 0.65;
+    public static final double kSpinupSeconds = 2.5; // shooter runs alone this long first
+
+    // Then feed one ball at a time: kickers run for kFeedPulseSeconds, then stop for
+    // kBallPauseSeconds so the shooter wheel gets back up to speed before the next ball.
+    public static final int kBallCount = 3;
+    public static final double kFeedPulseSeconds = 0.4; // longer if a ball doesn't make it out
+    public static final double kBallPauseSeconds = 1.0; // longer if later balls still go low
 
     // Negative = backward (same as pulling the sticks back). Flip the sign if the robot
     // drives toward the goal instead. The drive squares this value, so 0.6 is about 36% power.

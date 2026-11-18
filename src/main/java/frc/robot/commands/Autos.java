@@ -16,57 +16,60 @@ public final class Autos {
   /**
    * Shoots, then backs up a little.
    *
-   * <p>1. Shooter spins up alone. 2. Kickers join in and feed. 3. Everything stops. 4. Robot
-   * drives backward for a fixed time.
+   * <p>1. Shooter spins up alone. 2. Kickers feed one ball at a time with a pause between balls.
+   * 3. Everything stops. 4. Robot drives backward for a fixed time.
    */
   public static Command shootAndBackUp(
       DriveSubsystem drive,
       ShooterSubsystem shooter,
       KickerSubsystem kicker,
       UpperKickerSubsystem upperKicker) {
-    // The shooter runs the whole time; the kickers start after the spin-up delay.
-    // The timeout ends the group, which stops all three motors.
-    Command shoot =
-        Commands.parallel(
-                shooter.shootCommand(),
-                Commands.sequence(
-                    Commands.waitSeconds(AutoConstants.kSpinupSeconds),
-                    Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())))
-            .withTimeout(AutoConstants.kSpinupSeconds + AutoConstants.kFeedSeconds);
-
     Command backUp =
         drive
             .tankDriveCommand(() -> AutoConstants.kBackUpSpeed, () -> AutoConstants.kBackUpSpeed)
             .withTimeout(AutoConstants.kBackUpSeconds);
 
-    return Commands.sequence(shoot, backUp);
+    return Commands.sequence(shoot(shooter, kicker, upperKicker), backUp);
   }
 
   /**
    * Shoots, then drives forward.
    *
-   * <p>1. Shooter spins up alone. 2. Kickers join in and feed. 3. Everything stops. 4. Robot
-   * drives forward for a fixed time.
+   * <p>1. Shooter spins up alone. 2. Kickers feed one ball at a time with a pause between balls.
+   * 3. Everything stops. 4. Robot drives forward for a fixed time.
    */
   public static Command shootAndGoForward(
       DriveSubsystem drive,
       ShooterSubsystem shooter,
       KickerSubsystem kicker,
       UpperKickerSubsystem upperKicker) {
-    Command shoot =
-        Commands.parallel(
-                shooter.shootCommand(),
-                Commands.sequence(
-                    Commands.waitSeconds(AutoConstants.kSpinupSeconds),
-                    Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())))
-            .withTimeout(AutoConstants.kSpinupSeconds + AutoConstants.kFeedSeconds);
-
     Command goForward =
         drive
             .arcadeDriveCommand(() -> AutoConstants.kForwardSpeed, () -> 0.0)
             .withTimeout(AutoConstants.kForwardSeconds);
 
-    return Commands.sequence(shoot, goForward);
+    return Commands.sequence(shoot(shooter, kicker, upperKicker), goForward);
+  }
+
+  /**
+   * Spins up the shooter, then feeds kBallCount balls one at a time. After each ball the kickers
+   * stop for kBallPauseSeconds so the shooter wheel recovers its speed. The shooter runs the whole
+   * time and stops when the last pause ends.
+   */
+  private static Command shoot(
+      ShooterSubsystem shooter, KickerSubsystem kicker, UpperKickerSubsystem upperKicker) {
+    Command[] steps = new Command[1 + 2 * AutoConstants.kBallCount];
+    steps[0] = Commands.waitSeconds(AutoConstants.kSpinupSeconds);
+    for (int i = 0; i < AutoConstants.kBallCount; i++) {
+      steps[1 + 2 * i] =
+          Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())
+              .withTimeout(AutoConstants.kFeedPulseSeconds);
+      steps[2 + 2 * i] = Commands.waitSeconds(AutoConstants.kBallPauseSeconds);
+    }
+
+    // The feeding sequence decides when shooting is over; the shooter stops with it.
+    return Commands.deadline(
+        Commands.sequence(steps), shooter.shootCommand(AutoConstants.kAutoShooterSpeed));
   }
 
   private Autos() {
