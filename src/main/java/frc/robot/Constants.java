@@ -54,6 +54,11 @@ public final class Constants {
     public static final double kFeedPulseSeconds = 0.4; // longer if a ball doesn't make it out
     public static final double kBallPauseSeconds = 1.0; // longer if later balls still go low
 
+    // Between shots, run both kickers backward this long (at their unjam speeds) to pull the
+    // next ball back out from under the lower kicker so it sits steady. 0 = off.
+    // This happens at the start of the pause above, and the shooter keeps spinning forward.
+    public static final double kReverseSeconds = 0.2;
+
     // Negative = backward (same as pulling the sticks back). Flip the sign if the robot
     // drives toward the goal instead. The drive squares this value, so 0.6 is about 36% power.
     public static final double kBackUpSpeed = -0.6;

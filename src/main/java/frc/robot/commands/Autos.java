@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AutoConstants;
@@ -52,24 +55,37 @@ public final class Autos {
   }
 
   /**
-   * Spins up the shooter, then feeds kBallCount balls one at a time. After each ball the kickers
-   * stop for kBallPauseSeconds so the shooter wheel recovers its speed. The shooter runs the whole
-   * time and stops when the last pause ends.
+   * Spins up the shooter, then feeds kBallCount balls one at a time. Between balls the kickers
+   * briefly run backward (kReverseSeconds) to settle the next ball, then wait so the shooter wheel
+   * recovers its speed. The shooter runs the whole time and stops when the last pause ends.
    */
   private static Command shoot(
       ShooterSubsystem shooter, KickerSubsystem kicker, UpperKickerSubsystem upperKicker) {
-    Command[] steps = new Command[1 + 2 * AutoConstants.kBallCount];
-    steps[0] = Commands.waitSeconds(AutoConstants.kSpinupSeconds);
-    for (int i = 0; i < AutoConstants.kBallCount; i++) {
-      steps[1 + 2 * i] =
+    List<Command> steps = new ArrayList<>();
+    steps.add(Commands.waitSeconds(AutoConstants.kSpinupSeconds));
+
+    for (int ball = 1; ball <= AutoConstants.kBallCount; ball++) {
+      // Feed one ball.
+      steps.add(
           Commands.parallel(kicker.kickCommand(), upperKicker.kickCommand())
-              .withTimeout(AutoConstants.kFeedPulseSeconds);
-      steps[2 + 2 * i] = Commands.waitSeconds(AutoConstants.kBallPauseSeconds);
+              .withTimeout(AutoConstants.kFeedPulseSeconds));
+
+      // Before the next ball: back it out from under the lower kicker.
+      boolean moreBalls = ball < AutoConstants.kBallCount;
+      if (moreBalls && AutoConstants.kReverseSeconds > 0) {
+        steps.add(
+            Commands.parallel(kicker.unjamCommand(), upperKicker.unjamCommand())
+                .withTimeout(AutoConstants.kReverseSeconds));
+      }
+
+      // Let the shooter wheel get back up to speed (and the last ball leave).
+      steps.add(Commands.waitSeconds(AutoConstants.kBallPauseSeconds));
     }
 
     // The feeding sequence decides when shooting is over; the shooter stops with it.
     return Commands.deadline(
-        Commands.sequence(steps), shooter.shootCommand(AutoConstants.kAutoShooterSpeed));
+        Commands.sequence(steps.toArray(new Command[0])),
+        shooter.shootCommand(AutoConstants.kAutoShooterSpeed));
   }
 
   private Autos() {
