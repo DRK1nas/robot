@@ -15,6 +15,7 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kScoreControllerPort = 1; // second controller, counts the score
     public static final double kDeadband = 0.08;
     public static final double kTriggerThreshold = 0.2;
 

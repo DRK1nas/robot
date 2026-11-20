@@ -32,14 +32,18 @@ import frc.robot.subsystems.UpperKickerSubsystem;
  *   <li>Left bumper (hold) = upper kicker wheel (CAN 7)
  *   <li>A button (hold) = shooter, kicker and upper kicker together
  *   <li>B button (hold) = reverse shooter, kicker and upper kicker to clear a jam
- *   <li>Score counting (press once per score):
- *       <ul>
- *         <li>D-pad down = ball in Low goal (2 in auto, 1 in teleop)
- *         <li>D-pad up = ball in High goal (3 in auto, 2 in teleop)
- *         <li>D-pad left = Bonus ball Low (2), D-pad right = Bonus ball High (3)
- *         <li>X = Mobility (1), Start = foul by the opponent (3 for us)
- *         <li>Y = undo the last score
- *       </ul>
+ * </ul>
+ *
+ * <p>Score controller (Xbox, port 1), press once per score. Left side = US, right side = THEM:
+ *
+ * <ul>
+ *   <li>Low goal ball (2 in auto, 1 in teleop): US D-pad down, THEM A
+ *   <li>High goal ball (3 in auto, 2 in teleop): US D-pad up, THEM Y
+ *   <li>Bonus ball Low (2): US D-pad left, THEM X
+ *   <li>Bonus ball High (3): US D-pad right, THEM B
+ *   <li>Mobility (1): US left bumper, THEM right bumper
+ *   <li>Foul (3 to the other team): THEY fouled = left trigger, WE fouled = right trigger
+ *   <li>Undo last score: US Back, THEM Start
  * </ul>
  */
 public class RobotContainer {
@@ -49,11 +53,15 @@ public class RobotContainer {
   private final KickerSubsystem m_kicker = new KickerSubsystem();
   private final UpperKickerSubsystem m_upperKicker = new UpperKickerSubsystem();
 
-  // Hand-counted score, shown on the dashboard under "Score/".
-  private final ScoreTracker m_score = new ScoreTracker();
+  // Hand-counted score for both alliances, shown on the dashboard under "Score/".
+  private final ScoreBoard m_score = new ScoreBoard();
 
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+
+  // Second controller: only counts the score.
+  private final CommandXboxController m_scoreController =
+      new CommandXboxController(OperatorConstants.kScoreControllerPort);
 
   // Pick the autonomous routine from the dashboard (Elastic: "Auto Chooser").
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
@@ -102,15 +110,7 @@ public class RobotContainer {
             Commands.parallel(
                 m_shooter.shootCommand(), m_kicker.kickCommand(), m_upperKicker.kickCommand()));
 
-    // Score counting (press once per score). Low/High count as auto balls while the Driver
-    // Station is in Autonomous, and as yellow balls otherwise.
-    m_driverController.povDown().onTrue(m_score.lowGoalCommand());
-    m_driverController.povUp().onTrue(m_score.highGoalCommand());
-    m_driverController.povLeft().onTrue(m_score.scoreCommand(ScoreTracker.Action.BONUS_LOW));
-    m_driverController.povRight().onTrue(m_score.scoreCommand(ScoreTracker.Action.BONUS_HIGH));
-    m_driverController.x().onTrue(m_score.scoreCommand(ScoreTracker.Action.MOBILITY));
-    m_driverController.start().onTrue(m_score.scoreCommand(ScoreTracker.Action.OPPONENT_FOUL));
-    m_driverController.y().onTrue(m_score.undoCommand());
+    configureScoreController();
 
     // B button reverses everything to clear a jam.
     m_driverController
@@ -120,6 +120,35 @@ public class RobotContainer {
                 m_shooter.unjamCommand(),
                 m_kicker.unjamCommand(),
                 m_upperKicker.unjamCommand()));
+  }
+
+  /**
+   * Second controller (port 1) counts the score. Press once per score. Left side = US, right side
+   * = THEM. Low/High count as auto balls while the Driver Station is in Autonomous, and as yellow
+   * balls otherwise.
+   */
+  private void configureScoreController() {
+    // US: D-pad, left bumper, left trigger, Back.
+    m_scoreController.povDown().onTrue(m_score.us.lowGoalCommand());
+    m_scoreController.povUp().onTrue(m_score.us.highGoalCommand());
+    m_scoreController.povLeft().onTrue(m_score.us.scoreCommand(ScoreBoard.Action.BONUS_LOW));
+    m_scoreController.povRight().onTrue(m_score.us.scoreCommand(ScoreBoard.Action.BONUS_HIGH));
+    m_scoreController.leftBumper().onTrue(m_score.us.scoreCommand(ScoreBoard.Action.MOBILITY));
+    m_scoreController
+        .leftTrigger(OperatorConstants.kTriggerThreshold)
+        .onTrue(m_score.us.scoreCommand(ScoreBoard.Action.FOUL)); // THEY fouled: +3 for us
+    m_scoreController.back().onTrue(m_score.us.undoCommand());
+
+    // THEM: face buttons, right bumper, right trigger, Start.
+    m_scoreController.a().onTrue(m_score.them.lowGoalCommand());
+    m_scoreController.y().onTrue(m_score.them.highGoalCommand());
+    m_scoreController.x().onTrue(m_score.them.scoreCommand(ScoreBoard.Action.BONUS_LOW));
+    m_scoreController.b().onTrue(m_score.them.scoreCommand(ScoreBoard.Action.BONUS_HIGH));
+    m_scoreController.rightBumper().onTrue(m_score.them.scoreCommand(ScoreBoard.Action.MOBILITY));
+    m_scoreController
+        .rightTrigger(OperatorConstants.kTriggerThreshold)
+        .onTrue(m_score.them.scoreCommand(ScoreBoard.Action.FOUL)); // WE fouled: +3 for them
+    m_scoreController.start().onTrue(m_score.them.undoCommand());
   }
 
   /**
