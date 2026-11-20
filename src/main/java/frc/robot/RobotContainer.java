@@ -32,6 +32,7 @@ import frc.robot.subsystems.UpperKickerSubsystem;
  *   <li>Left bumper (hold) = upper kicker wheel (CAN 7)
  *   <li>A button (hold) = shooter, kicker and upper kicker together
  *   <li>B button (hold) = reverse shooter, kicker and upper kicker to clear a jam
+ *   <li>X button (press) = add 1 point, Y button (press) = remove 1 point
  * </ul>
  */
 public class RobotContainer {
@@ -116,6 +117,10 @@ public class RobotContainer {
         .whileTrue(
             Commands.parallel(
                 m_shooter.shootCommand(), m_kicker.kickCommand(), m_upperKicker.kickCommand()));
+
+    // X adds a point, Y takes one away (to fix a mistake). Shown as "Points" on the dashboard.
+    m_driverController.x().onTrue(pointsCommand(+1, "+1"));
+    m_driverController.y().onTrue(pointsCommand(-1, "-1"));
 
     // B button reverses everything to clear a jam.
     m_driverController
