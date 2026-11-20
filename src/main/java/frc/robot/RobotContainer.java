@@ -69,7 +69,6 @@ public class RobotContainer {
         Autos.shootAndGoForward(m_drive, m_shooter, m_kicker, m_upperKicker));
     m_autoChooser.addOption("Do Nothing", Commands.none());
     SmartDashboard.putData("Auto Chooser", m_autoChooser);
-
   }
 
   private void configureBindings() {
