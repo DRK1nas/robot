@@ -32,7 +32,14 @@ import frc.robot.subsystems.UpperKickerSubsystem;
  *   <li>Left bumper (hold) = upper kicker wheel (CAN 7)
  *   <li>A button (hold) = shooter, kicker and upper kicker together
  *   <li>B button (hold) = reverse shooter, kicker and upper kicker to clear a jam
- *   <li>X button (press) = add 1 point, Y button (press) = remove 1 point
+ *   <li>Score counting (press once per score):
+ *       <ul>
+ *         <li>D-pad down = ball in Low goal (2 in auto, 1 in teleop)
+ *         <li>D-pad up = ball in High goal (3 in auto, 2 in teleop)
+ *         <li>D-pad left = Bonus ball Low (2), D-pad right = Bonus ball High (3)
+ *         <li>X = Mobility (1), Start = foul by the opponent (3 for us)
+ *         <li>Y = undo the last score
+ *       </ul>
  * </ul>
  */
 public class RobotContainer {
@@ -41,6 +48,9 @@ public class RobotContainer {
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final KickerSubsystem m_kicker = new KickerSubsystem();
   private final UpperKickerSubsystem m_upperKicker = new UpperKickerSubsystem();
+
+  // Hand-counted score, shown on the dashboard under "Score/".
+  private final ScoreTracker m_score = new ScoreTracker();
 
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -60,31 +70,6 @@ public class RobotContainer {
     m_autoChooser.addOption("Do Nothing", Commands.none());
     SmartDashboard.putData("Auto Chooser", m_autoChooser);
 
-    configurePointCounter();
-  }
-
-  // Points you count yourself from the dashboard (Elastic). Not saved after a robot restart.
-  private int m_points = 0;
-
-  /** Adds "Points" plus "Points +1", "Points -1" and "Points Reset" buttons to the dashboard. */
-  private void configurePointCounter() {
-    SmartDashboard.putNumber("Points", m_points);
-    SmartDashboard.putData("Points +1", pointsCommand(+1, "+1"));
-    SmartDashboard.putData("Points -1", pointsCommand(-1, "-1"));
-    SmartDashboard.putData(
-        "Points Reset",
-        Commands.runOnce(() -> setPoints(0)).ignoringDisable(true).withName("Reset"));
-  }
-
-  private Command pointsCommand(int change, String name) {
-    return Commands.runOnce(() -> setPoints(Math.max(0, m_points + change)))
-        .ignoringDisable(true)
-        .withName(name);
-  }
-
-  private void setPoints(int points) {
-    m_points = points;
-    SmartDashboard.putNumber("Points", m_points);
   }
 
   private void configureBindings() {
@@ -118,9 +103,15 @@ public class RobotContainer {
             Commands.parallel(
                 m_shooter.shootCommand(), m_kicker.kickCommand(), m_upperKicker.kickCommand()));
 
-    // X adds a point, Y takes one away (to fix a mistake). Shown as "Points" on the dashboard.
-    m_driverController.x().onTrue(pointsCommand(+1, "+1"));
-    m_driverController.y().onTrue(pointsCommand(-1, "-1"));
+    // Score counting (press once per score). Low/High count as auto balls while the Driver
+    // Station is in Autonomous, and as yellow balls otherwise.
+    m_driverController.povDown().onTrue(m_score.lowGoalCommand());
+    m_driverController.povUp().onTrue(m_score.highGoalCommand());
+    m_driverController.povLeft().onTrue(m_score.scoreCommand(ScoreTracker.Action.BONUS_LOW));
+    m_driverController.povRight().onTrue(m_score.scoreCommand(ScoreTracker.Action.BONUS_HIGH));
+    m_driverController.x().onTrue(m_score.scoreCommand(ScoreTracker.Action.MOBILITY));
+    m_driverController.start().onTrue(m_score.scoreCommand(ScoreTracker.Action.OPPONENT_FOUL));
+    m_driverController.y().onTrue(m_score.undoCommand());
 
     // B button reverses everything to clear a jam.
     m_driverController
