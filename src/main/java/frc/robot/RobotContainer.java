@@ -58,6 +58,32 @@ public class RobotContainer {
         Autos.shootAndGoForward(m_drive, m_shooter, m_kicker, m_upperKicker));
     m_autoChooser.addOption("Do Nothing", Commands.none());
     SmartDashboard.putData("Auto Chooser", m_autoChooser);
+
+    configurePointCounter();
+  }
+
+  // Points you count yourself from the dashboard (Elastic). Not saved after a robot restart.
+  private int m_points = 0;
+
+  /** Adds "Points" plus "Points +1", "Points -1" and "Points Reset" buttons to the dashboard. */
+  private void configurePointCounter() {
+    SmartDashboard.putNumber("Points", m_points);
+    SmartDashboard.putData("Points +1", pointsCommand(+1, "+1"));
+    SmartDashboard.putData("Points -1", pointsCommand(-1, "-1"));
+    SmartDashboard.putData(
+        "Points Reset",
+        Commands.runOnce(() -> setPoints(0)).ignoringDisable(true).withName("Reset"));
+  }
+
+  private Command pointsCommand(int change, String name) {
+    return Commands.runOnce(() -> setPoints(Math.max(0, m_points + change)))
+        .ignoringDisable(true)
+        .withName(name);
+  }
+
+  private void setPoints(int points) {
+    m_points = points;
+    SmartDashboard.putNumber("Points", m_points);
   }
 
   private void configureBindings() {
