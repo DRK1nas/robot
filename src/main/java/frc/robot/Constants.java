@@ -69,6 +69,12 @@ public final class Constants {
     // The drive squares this value, so 0.6 is about 36% power.
     public static final double kForwardSpeed = 0.6;
     public static final double kForwardSeconds = 1.0;
+
+    // "Shoot, Turn, Back Up" autos: after shooting, turn in place, then back up (uses
+    // kBackUpSpeed / kBackUpSeconds above). Timed, no gyro: tune kTurnSeconds on the floor until
+    // the turn is about 45 degrees. The drive squares this value, so 0.6 is about 36% power.
+    public static final double kTurnSpeed = 0.6;
+    public static final double kTurnSeconds = 0.35; // longer = turns more
   }
 
   public static class ShooterConstants {

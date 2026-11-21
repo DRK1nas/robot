@@ -55,6 +55,30 @@ public final class Autos {
   }
 
   /**
+   * Shoots, turns in place about 45 degrees, then backs up.
+   *
+   * @param turnLeft true to turn left (counterclockwise), false to turn right
+   */
+  public static Command shootTurnAndBackUp(
+      DriveSubsystem drive,
+      ShooterSubsystem shooter,
+      KickerSubsystem kicker,
+      UpperKickerSubsystem upperKicker,
+      boolean turnLeft) {
+    // arcadeDrive: positive rotation = counterclockwise = left.
+    double rotation = turnLeft ? AutoConstants.kTurnSpeed : -AutoConstants.kTurnSpeed;
+    Command turn =
+        drive.arcadeDriveCommand(() -> 0.0, () -> rotation).withTimeout(AutoConstants.kTurnSeconds);
+
+    Command backUp =
+        drive
+            .arcadeDriveCommand(() -> AutoConstants.kBackUpSpeed, () -> 0.0)
+            .withTimeout(AutoConstants.kBackUpSeconds);
+
+    return Commands.sequence(shoot(shooter, kicker, upperKicker), turn, backUp);
+  }
+
+  /**
    * Spins up the shooter, then feeds kBallCount balls one at a time. Between balls the kickers
    * briefly run backward (kReverseSeconds) to settle the next ball, then wait so the shooter wheel
    * recovers its speed. The shooter runs the whole time and stops when the last pause ends.
