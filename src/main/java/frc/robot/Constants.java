@@ -89,6 +89,10 @@ public final class Constants {
     public static final double kUnjamShooterSpeed = -0.40;
     public static final double kUnjamKickerSpeed = -0.60;
 
+    // Teleop automatic shooting (hold X): shooter spins this long before the first ball.
+    // Feed / reverse / pause times are shared with autonomous (AutoConstants).
+    public static final double kTeleopSpinupSeconds = 1.5;
+
     // Upper kicker (CAN 7) has its own speeds so you can tune it separately
     public static final double kUpperKickerSpeed = 0.80;
     public static final double kUnjamUpperKickerSpeed = -0.60;

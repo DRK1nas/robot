@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoShoot;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.KickerSubsystem;
@@ -32,6 +33,7 @@ import frc.robot.subsystems.UpperKickerSubsystem;
  *   <li>Left bumper (hold) = upper kicker wheel (CAN 7)
  *   <li>A button (hold) = shooter, kicker and upper kicker together
  *   <li>B button (hold) = reverse shooter, kicker and upper kicker to clear a jam
+ *   <li>X button (hold) = automatic shooting, one ball at a time, until released
  * </ul>
  *
  * <p>Score controller (Xbox, port 1), press once per score. Left side = US, right side = THEM:
@@ -117,6 +119,10 @@ public class RobotContainer {
                 m_shooter.shootCommand(), m_kicker.kickCommand(), m_upperKicker.kickCommand()));
 
     configureScoreController();
+
+    // X button (hold) shoots automatically: spin up, then one ball at a time with a reverse and
+    // pause between balls. Release to stop.
+    m_driverController.x().whileTrue(AutoShoot.shootWhileHeld(m_shooter, m_kicker, m_upperKicker));
 
     // B button reverses everything to clear a jam.
     m_driverController
